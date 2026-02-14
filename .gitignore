@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/build
+**/cache
+**/log
+**/error
+**/warning
+**/info
+**/debug
+**/trace
+**/stack
+**/stacktrace
+**/stacktrace
