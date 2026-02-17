@@ -1,0 +1,11 @@
+## The computational inefficiencies and anti-patterns found in the code block
+- Function `useWalletBalances()` and `usePrices()` is not define.
+- `WalletRow`, `classes` is not define.
+- `formattedBalances`, `children` is define but never used.
+- `balancePriority` is defined in filter, but `lhsPriority` was used instead.
+- interface `BoxProps` is not define, `Props` extends `BoxProps` but has no extra properties.
+- There are using `useMemo()` for `sortedBalances` with `balances` and `prices` as dependencies, but only `balances` is actually needed.
+- `getPriority()` should be defined outside `WalletPage` because when `WalletPage` re-render, `getPriority()` will be re-declare
+- `WalletPage` has not been exported yet.
+- The `WalletBalance` interface doesn't have a `blockchain` property, but it is being used.
+- `sort()` in `sortedBalances` need a default value (exp: 0) when `leftPriority` === `leftPriority`.
