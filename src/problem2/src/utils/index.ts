@@ -8,10 +8,5 @@ export const getCurrencies = () => {
         label: currency,
         icon: `/images/tokens/${currency}.svg`,
         value: currency,
-        isMaintainance: !prices?.some((price) => price.currency === currency),
-    })).sort((a, b) => {
-        if (a.isMaintainance && !b.isMaintainance) return 1;
-        if (!a.isMaintainance && b.isMaintainance) return -1;
-        return 0;
-    });
+    })).filter((currency) => prices?.some((price) => price.currency === currency.value));
 }

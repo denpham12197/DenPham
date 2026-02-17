@@ -5,16 +5,18 @@ import { Form, Field } from 'vee-validate'
 import { formCurrencyConvert } from '../validates/formCurrencyConvert';
 import { getCurrencies } from '../utils';
 import prices from '../resources/prices.json';
+import Swal from 'sweetalert2';
 
+const DEFAULT_SELECTED_CURRENCY = {
+    label: 'Select Currency',
+    icon: '',
+    value: '',
+}
 const amount = ref(0);
-const amountConverted = computed(() => {
-    const fromPrice = prices?.find((price) => price.currency === fromCurrency.value?.value)?.price;
-    const toPrice = prices?.find((price) => price.currency === toCurrency.value?.value)?.price;
-    if (!fromPrice || !toPrice || isNaN(Number(amount.value))) return 0;
-    return (Number(amount.value) * Number(fromPrice)) / Number(toPrice);
-})
-const fromCurrency = ref()
-const toCurrency = ref()
+const formRef = ref(null);
+const amountConverted = ref(0);
+const fromCurrency = ref({...DEFAULT_SELECTED_CURRENCY})
+const toCurrency = ref({...DEFAULT_SELECTED_CURRENCY})
 const fromCurrencies = computed(() => getCurrencies().filter((currency) => currency.value !== toCurrency.value?.value));
 const toCurrencies = computed(() => getCurrencies().filter((currency) => currency.value !== fromCurrency.value?.value));
 
@@ -24,15 +26,41 @@ const handleChangeFromCurrency = (currency: { label: string, icon: string, value
 const handleChangeToCurrency = (currency: { label: string, icon: string, value: string }) => {
     toCurrency.value = {...currency};
 };
+const handleGetConverAmount = () => {
+    const fromPrice = prices?.find((price) => price.currency === fromCurrency.value?.value)?.price;
+    const toPrice = prices?.find((price) => price.currency === toCurrency.value?.value)?.price;
+    if (!fromPrice || !toPrice || isNaN(Number(amount.value))) return 0;
+    return (Number(amount.value) * Number(fromPrice)) / Number(toPrice);
+}
 const handleRevertCurrencies = () => {
+    if (!fromCurrency.value?.value && !toCurrency.value?.value) return;
     const temp = {...fromCurrency.value};
     fromCurrency.value = {...toCurrency.value};
     toCurrency.value = {...temp};
 }
+
+const handleSubmitForm = () => {
+    formRef.value?.validate()?.then(({ errors, valid}) => {
+        console.log(errors, valid);
+        if (!valid && Object.values(errors).length) {
+            Swal?.fire?.({
+                title: 'Error',
+                text: Object.values(errors)?.[0],
+                icon: 'error',
+                timer: 3000,
+                toast: true,
+                showConfirmButton: false,
+                position: 'top-end',
+            });
+            return;
+        }
+        amountConverted.value = handleGetConverAmount() || 0;
+    });
+}
 </script>
 <template>
     <div class="form-currency">
-        <h1>Currency Exchange</h1><br/>
+        <h1>Currency Convert</h1><br/>
         <Form
             ref="formRef"
             class="form-currency__form"
@@ -87,7 +115,14 @@ const handleRevertCurrencies = () => {
                     />
                 </div>
             </div>
-            <!-- <button class="form-currency__submit" type="button" @click="handleSubmitForm()">Convert</button> -->
+            <button
+                class="form-currency__submit"
+                type="button"
+                @click="handleSubmitForm()"
+                :disabled="!amount || !toCurrency.value || !fromCurrency.value"
+            >
+                Convert
+            </button>
         </Form>
     </div>
 </template>
@@ -174,6 +209,10 @@ const handleRevertCurrencies = () => {
         transition: .3s;
         &:hover {
             background-color: #0c62d2;
+        }
+        &:disabled {
+            background-color: #88b6f2;
+            pointer-events: none;
         }
     }
 }

@@ -5,27 +5,22 @@ import { onClickOutside } from '@vueuse/core';
 const emits = defineEmits(['handleSelectCurrency']);
 const props = defineProps({
     currencies: {
-        type: Array as PropType<{ label: string, icon: string, value: string, isMaintainance: boolean }[]>,
+        type: Array as PropType<{ label: string, icon: string, value: string }[]>,
         required: true,
     },
     activeCurrency: {
         type: Object as PropType<{ label: string, icon: string, value: string }>,
-        required: true,
-        default: () => ({
-            label: 'Select Currency',
-            icon: '',
-            value: '',
-        }),
+        required: true
     }
 })
 
 const showMenu = ref(false);
 const menuRef = ref<HTMLDivElement | null>(null);
-// const currencies = getCurrencies();
-const { currencies, activeCurrency } = toRefs(props);
 onClickOutside(menuRef, () => {
     showMenu.value = false;
 });
+const { currencies, activeCurrency } = toRefs(props);
+
 const toggleMenu = () => {
     showMenu.value = !showMenu.value;
 };
@@ -59,7 +54,7 @@ const handleSelectCurrency = (currency: { label: string, icon: string, value: st
                 :key="currency.value"
                 class="currency-dropdown__item"
                 @click="handleSelectCurrency(currency)"
-                :class="{ active: activeCurrency.value === currency.value, maintainance: currency.isMaintainance }"
+                :class="{ active: activeCurrency.value === currency.value }"
             >
                 <div class="currency-dropdown__item-icon">
                     <img :src="currency.icon" alt="currency" />
@@ -67,9 +62,6 @@ const handleSelectCurrency = (currency: { label: string, icon: string, value: st
                 <div class="currency-dropdown__item-name">
                     {{ currency.label }}
                 </div>
-                <!-- <div v-if="currency.isMaintainance" class="currency-dropdown__item-maintainance">
-                    <span>NA</span>
-                </div> -->
             </div>
         </div>
     </div>
